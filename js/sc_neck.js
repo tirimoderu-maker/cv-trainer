@@ -147,7 +147,7 @@
       root.querySelector('#fdHeld').textContent = S.f.held ? `手に持っている: ${TOOLS[S.f.held].t}（器械台でもう一度押すと戻す）` : '';
       cv.style.cursor = S.f.held ? 'none' : 'grab';
     },
-    unmount() { cancelAnimationFrame(raf); ro && ro.disconnect(); ro2 && ro2.disconnect(); ro3 && ro3.disconnect(); },
+    unmount() { anim = null; cancelAnimationFrame(raf); ro && ro.disconnect(); ro2 && ro2.disconnect(); ro3 && ro3.disconnect(); },
   });
 
   const curStep = () => PS.cur && PS.cur.steps[PS.cur.i];
@@ -161,6 +161,7 @@
   // ---------- 操作 ----------
   function down(e) {
     const S = S0, p = PS.cpos(cv, e), m = mode(), f = S.f;
+    if (anim) return;   // 自動で動いている間は待つ
     try { cv.setPointerCapture(e.pointerId); } catch (er) { /* 合成イベント */ }
     drag = { x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false };
     if (f.wire && !f.wHold && ['needleOut', 'cut', 'dil', 'cv'].includes(m) && near(p, gripPos(S), 20)) {
@@ -198,6 +199,7 @@
         if (!f.needle || !near(p, hubPos(S), 50)) return PS.emit({ type: 'miss' });
         if (f.needle.syr) return PS.emit({ type: 'wireBlocked' });
         f.wire = { len: f.needle.s, art: f.needle.art }; f.held = null; PS.refresh(); PS.emit({ type: 'wireIn' });
+        drag.fresh = true;
       }
       drag.kind = 'wire'; drag.l0 = f.wire.len; return;
     }
@@ -208,6 +210,7 @@
         if (!has('cvdil')) return warnTool('cvdil');
         if (!near(p, entry(S), 50)) return PS.emit({ type: 'miss' });
         f.dil = { s: 0 }; f.held = null; PS.refresh(); PS.emit({ type: 'dilOn' });
+        drag.fresh = true;
       }
       drag.kind = 'dil'; drag.s0 = f.dil.s; return;
     }
@@ -281,6 +284,7 @@
     if (!drag) return;
     const S = S0, f = S.f, d = drag; drag = null;
     clearTimeout(d.holdTimer);
+    if (!d.moved && !d.fresh && AUTO.includes(d.kind) && tapAuto(S, d.kind)) { PS.refresh(); return; }   // タップ＝自動で進む
     switch (d.kind) {
       case 'probe': { const wc = f.comp; f.comp = false; PS.emit({ type: 'probe', y: f.probe.y, x: f.probe.x, comp: wc, moved: d.moved }); break; }
       case 'needle': { const ns = needleState(S); PS.emit({ type: 'needle', st: ns.st, y: ns.y, d: ns.d }); break; }
@@ -304,6 +308,61 @@
     PS.refresh();
   }
 
+  // ---------- タップで自動 ----------
+  // ワイヤー・ダイレーター・カテーテルなどは、タップすると目標の深さまで自動で動く（ドラッグでも動かせる）。
+  // ワイヤーを持っていない時の「一緒に入る／抜ける」はタップでも起こる。
+  const AUTO = ['wire', 'needleOut', 'inner', 'asp', 'dil', 'cv', 'wireBack', 'wireOut'];
+  let anim = null;
+  const ease = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  const autoRun = (dur, step, done) => { anim = { t0: performance.now(), dur, step, done }; const iv = setInterval(() => { if (!anim) return clearInterval(iv); stepAnim(); }, 30); };   // 描画が止まっていても（裏のタブなど）進める
+  const tween = (o, key, to, dur, done) => { const from = o[key]; autoRun(dur, e => { o[key] = from + (to - from) * e; }, done); };
+  function stepAnim() {
+    if (!anim) return;
+    const a = anim, k = Math.min(1, (performance.now() - a.t0) / a.dur);
+    if (a.step(ease(k)) === true || k >= 1) { anim = null; a.done(); PS.refresh(); }
+  }
+  function slipNow(S, how) { drag = {}; slip(S, how); drag = null; }
+  function tapAuto(S, kind) {
+    const f = S.f;
+    switch (kind) {
+      case 'wire': {
+        const L = f.wire.len, T = L > 19 ? 17 : L < 15 ? 16.5 : null;
+        if (T == null) return false;
+        tween(f.wire, 'len', T, PS.clamp(Math.abs(T - L) * 90, 500, 1500), () => PS.emit({ type: 'wire', len: f.wire.len, zone: zone(f.wire.len).id }));
+        return true;
+      }
+      case 'needleOut':
+        if (f.wire && !f.wHold) { slipNow(S, 'out'); return true; }
+        tween(f.needle, 's', 0, 700, () => { f.site = { x: f.needle.ex, y: f.needle.ey }; f.needle = null; PS.emit({ type: 'needleOut' }); });
+        return true;
+      case 'inner':
+        autoRun(600, e => { f.needle.pull = 60 * e; }, () => { const n = f.needle; n.pull = 0; n.inner = false; n.syr = false; n.flash = n.art ? 'a' : 'v'; PS.emit({ type: 'innerOut' }); });
+        return true;
+      case 'asp': tween(f.needle, 'asp', .9, 700, () => PS.emit({ type: 'catAsp', ok: true, art: !!f.needle.art })); return true;
+      case 'dil': {
+        const out = f.dil.s >= 1.8;
+        if (f.wire && !f.wHold) { slipNow(S, out ? 'out' : 'in'); return true; }
+        if (!out) tween(f.dil, 's', 2.5, 900, () => PS.emit({ type: 'dil', s: f.dil.s }));
+        else tween(f.dil, 's', 0, 800, () => { f.dil = null; f.dilDone = true; f.ooze = 1; PS.emit({ type: 'dilOut' }); });
+        return true;
+      }
+      case 'cv': {
+        if (f.wire && (!f.cv.tail || !f.wHold)) { slipNow(S, f.cv.tail ? 'in' : 'noTail'); return true; }
+        const s0 = f.cv.s, T = s0 > 18.5 || s0 < 16 ? 17 : null;
+        if (T == null) return false;
+        tween(f.cv, 's', T, PS.clamp(Math.abs(T - s0) * 80, 500, 1500), () => PS.emit({ type: 'cv', s: f.cv.s, zone: zone(f.cv.s).id }));
+        return true;
+      }
+      case 'wireBack': {
+        const L0 = f.wire.len;
+        autoRun(1400, e => { f.wire.len = L0 - (L0 - 4) * e; return tailOut(S); }, () => { if (tailOut(S)) { f.cv.tail = true; f.wHold = false; PS.emit({ type: 'tailOut' }); } });
+        return true;
+      }
+      case 'wireOut': tween(f.wire, 'len', 0, 900, () => { f.wire = null; f.wHold = false; f.wireBack = true; PS.emit({ type: 'wireOut' }); }); return true;
+    }
+    return false;
+  }
+
   function slip(S, how) {
     if (drag.slipped) return; drag.slipped = true;
     const f = S.f;
@@ -323,6 +382,7 @@
   const beat = t => { const ph = (t * 1.4) % 1; return ph < .15 ? Math.sin(ph / .15 * Math.PI) : 0; };
   function draw() {
     const S = S0; if (!S) return;
+    stepAnim();
     const t = (performance.now() - T0) / 1000, f = S.f;
     if (!f.wire) f.wHold = false;
     drawField(S, t);

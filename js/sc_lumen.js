@@ -46,7 +46,7 @@
       root.querySelector('#fdHeld').textContent = L.held ? `手に持っている: ${SYR[L.held].t}` : '';
       cv.style.cursor = L.held ? 'none' : 'grab';
     },
-    unmount() { cancelAnimationFrame(raf); ro && ro.disconnect(); },
+    unmount() { anim = null; cancelAnimationFrame(raf); ro && ro.disconnect(); },
   });
 
   const curStep = () => PS.cur && PS.cur.steps[PS.cur.i];
@@ -56,6 +56,7 @@
   // ---------- 操作 ----------
   function down(e) {
     const S = S0, L = S.L, p = PS.cpos(cv, e), st = curStep();
+    if (anim) return;
     try { cv.setPointerCapture(e.pointerId); } catch (er) { /* 合成イベント */ }
     drag = { x0: p.x, y0: p.y };
     if (st && st.mode === 'assign') {
@@ -82,6 +83,7 @@
   function move(e) {
     const p = PS.cpos(cv, e); mouse = { x: p.x, y: p.y, in: true };
     if (!drag) return;
+    if (Math.abs(p.x - drag.x0) + Math.abs(p.y - drag.y0) > 5) drag.moved = true;
     const S = S0, L = S.L;
     if (drag.kind === 'chip') { drag.x = p.x; drag.y = p.y; return; }
     if (drag.kind !== 'plunger') return;
@@ -107,6 +109,7 @@
       PS.refresh(); PS.emit({ type: 'chip', id: d.id, leg: i >= 0 ? L.keys[i] : null }); return;
     }
     if (d.kind !== 'plunger' || !L.syr) return;
+    if (!d.moved && L.syr.type === 'saline') return tapPlunger(L);   // タップ＝自動（ヘパリンは量を合わせるのでドラッグ）
     const sy = L.syr, lg = L.legs[sy.leg];
     const db = sy.blood - d.b0, dv = d.v0 - sy.vol;
     if (db > .05) { lg.asp = Math.max(lg.asp, sy.blood); PS.emit({ type: 'asp', k: sy.leg, ml: sy.blood }); }
@@ -115,6 +118,30 @@
       else { lg.flush = (lg.flush || 0) + dv; PS.emit({ type: 'flush', k: sy.leg, ml: lg.flush, back: sy.blood < .05 }); }
     }
     PS.refresh();
+  }
+
+  // 生食シリンジの押し子をタップ：まだ逆血を見ていなければ引く、見ていれば押してフラッシュ
+  let anim = null;
+  function tapPlunger(L) {
+    const sy = L.syr, lg = L.legs[sy.leg], cap = SYR[sy.type].cap;
+    if (lg.clamp) { PS.emit({ type: 'clamped', k: sy.leg }); return; }
+    if (lg.occl) { PS.emit({ type: 'noBlood', k: sy.leg }); return; }
+    const b0 = sy.blood, v0 = sy.vol;
+    if (lg.asp < 1) {
+      const to = Math.min(cap - v0, 3);
+      anim = { t0: performance.now(), dur: 700, step: e => { sy.blood = b0 + (to - b0) * e; }, done: () => { lg.asp = Math.max(lg.asp, sy.blood); PS.emit({ type: 'asp', k: sy.leg, ml: sy.blood }); } };
+      tick();
+    } else {
+      anim = { t0: performance.now(), dur: 1000, step: e => { sy.blood = b0 * (1 - Math.min(1, e * 2)); sy.vol = e < .5 ? v0 : v0 * (1 - (e - .5) * 2); },
+        done: () => { sy.blood = 0; sy.vol = 0; lg.flush = (lg.flush || 0) + v0; PS.emit({ type: 'flush', k: sy.leg, ml: lg.flush, back: true }); } };
+      tick();
+    }
+  }
+  function tick() { const iv = setInterval(() => { if (!anim) return clearInterval(iv); stepAnim(); }, 30); }
+  function stepAnim() {
+    if (!anim) return;
+    const a = anim, k = Math.min(1, (performance.now() - a.t0) / a.dur);
+    a.step(k); if (k >= 1) { anim = null; a.done(); PS.refresh(); }
   }
 
   // ---------- 薬の割り振り ----------
@@ -152,6 +179,7 @@
     return c;
   }
   function draw() {
+    stepAnim();
     const S = S0; if (!S) return;
     const R = PS.R, L = S.L, t = (performance.now() - T0) / 1000, st = curStep();
     if (!bg) bg = makeBg();

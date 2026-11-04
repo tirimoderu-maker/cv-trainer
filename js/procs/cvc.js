@@ -31,17 +31,17 @@
     advance: S => { const n = S.f.needle; return { drag: [[n.ex + 46, n.ey - 20], [n.ex + 46, n.ey + 60]], label: [n.ex + 140, n.ey + 20, '奥へドラッグで進める'] }; },
     syr: S => { const h = N().hubPos(S); return { tap: [h.x, h.y - 40], label: [h.x - 120, h.y - 40, 'シリンジを外す'] }; },
     wireIn: S => { const h = N().hubPos(S); return { tap: [h.x, h.y], label: [h.x - 120, h.y, 'ハブに差し込む'] }; },
-    feed: S => { const h = N().hubPos(S); return { drag: [[h.x + 40, h.y - 50], [h.x + 40, h.y + 20]], label: [h.x + 150, h.y - 20, '奥へ手繰って送る'] }; },
-    needleOut: gripFirst(S => { const h = N().hubPos(S); return { drag: [[h.x + 30, h.y], [h.x + 30, h.y - 110]], label: [h.x + 130, h.y - 50, S.f.needle && S.f.needle.cath ? '外套を手前へ抜く' : '針だけ手前へ抜く'] }; }),
-    inner: S => { const h = N().hubPos(S); return { drag: [[h.x, h.y - 40], [h.x, h.y - 130]], label: [h.x + 150, h.y - 80, '内針をシリンジごと手前へ抜く'] }; },
-    reSyr: S => { const h = N().hubPos(S); return S.f.needle.syr ? { drag: [[h.x, h.y - 40], [h.x, h.y - 100]], label: [h.x + 130, h.y - 70, '押し子を引く'] } : { tap: [h.x, h.y], label: [h.x + 140, h.y, '外套にシリンジを付ける'] }; },
+    feed: S => { const h = N().hubPos(S); return { tap: [h.x, h.y - 30], label: [h.x + 140, h.y - 30, 'タップで送る'] }; },
+    needleOut: gripFirst(S => { const h = N().hubPos(S); return { tap: [h.x, h.y], label: [h.x + 130, h.y, S.f.needle && S.f.needle.cath ? 'タップで外套を抜く' : 'タップで針を抜く'] }; }),
+    inner: S => { const h = N().hubPos(S); return { tap: [h.x, h.y - 40], label: [h.x + 150, h.y - 40, 'タップで内針を抜く'] }; },
+    reSyr: S => { const h = N().hubPos(S); return S.f.needle.syr ? { tap: [h.x, h.y - 40], label: [h.x + 130, h.y - 40, 'タップで押し子を引く'] } : { tap: [h.x, h.y], label: [h.x + 140, h.y, '外套にシリンジを付ける'] }; },
     cut: gripFirst(S => { const e = N().entry(S); return { drag: [[e.x - 12, e.y - 3], [e.x + 12, e.y + 3]], label: [e.x + 110, e.y + 20, '刺入部を小さく切る'] }; }),
     tapSite: S => { const e = N().entry(S); return { tap: [e.x, e.y], label: [e.x + 110, e.y + 10, 'ワイヤーに通す'] }; },
-    dilPush: gripFirst(S => { const h = N().dilHub(S), a = alongU(h, 16), b = alongU(h, -40); return { drag: [[a.x, a.y], [b.x, b.y]], label: [b.x + 120, b.y + 10, '少しずつ押す'] }; }),
-    dilPull: gripFirst(S => { const h = N().dilHub(S), b = alongU(h, 110); return { drag: [[h.x, h.y], [b.x, b.y]], label: [b.x + 110, b.y, '引き抜く'] }; }),
-    cvPush: gripFirst(S => { const h = N().cvHub(S), a = alongU(h, 10), b = alongU(h, -50); return { drag: [[a.x, a.y], [b.x, b.y]], label: [b.x + 130, b.y + 10, '押し進める（くり返す）'] }; }, 'ハブから出た尻を持つ'),
-    tailBack: S => { const f = S.f, gp = N().gripPos(S); if (!f.wHold) return { tap: [gp.x, gp.y], label: [gp.x + 130, gp.y, '皮膚の所でワイヤーを持つ'] }; return { drag: [[gp.x, gp.y], [gp.x, gp.y - 90]], label: [gp.x + 130, gp.y - 50, '手前へ引き戻す（くり返す）'] }; },
-    wireOut: S => { const gp = N().gripPos(S), l = N().legs(S)[0]; return { drag: [[gp.x, gp.y], [gp.x + Math.cos(l.a) * 30 - 10, gp.y - 100]], label: [gp.x - 120, gp.y - 70, 'ワイヤーを抜く'] }; },
+    dilPush: gripFirst(S => { const h = N().dilHub(S); return { tap: [h.x, h.y], label: [h.x + 120, h.y, 'タップで進める'] }; }),
+    dilPull: gripFirst(S => { const h = N().dilHub(S); return { tap: [h.x, h.y], label: [h.x + 110, h.y, 'タップで抜く'] }; }),
+    cvPush: gripFirst(S => { const h = N().cvHub(S); return { tap: [h.x, h.y], label: [h.x + 130, h.y, 'タップで進める'] }; }, 'ハブから出た尻を持つ'),
+    tailBack: S => { const f = S.f, gp = N().gripPos(S); if (!f.wHold) return { tap: [gp.x, gp.y], label: [gp.x + 130, gp.y, '皮膚の所でワイヤーを持つ'] }; return { tap: [gp.x, gp.y], label: [gp.x + 130, gp.y, 'タップで引き戻す'] }; },
+    wireOut: S => { const gp = N().gripPos(S); return { tap: [gp.x, gp.y], label: [gp.x - 120, gp.y - 30, 'タップでワイヤーを抜く'] }; },
     suture: S => { const p = alongU(N().entry(S), 22); return { tap: [p.x, p.y], label: [p.x + 120, p.y, '翼を皮膚に縫う'] }; },
     dress: S => { const e = N().entry(S); return { tap: [e.x, e.y - 20], label: [e.x + 120, e.y - 20, '刺入部を覆う'] }; },
   };
@@ -80,8 +80,8 @@
       if (!L.syr) { if (lg.asp >= 1 && lg.flush >= 4) return null; return L.held ? { tap: [lm.LX, y], label: [lm.LX - 70, y - 30, 'ルアーにつなぐ'] } : null; }
       if (lg.clamp && !(lg.asp >= 1 && lg.flush >= 4)) return { tap: [lm.CLX, y], label: [lm.CLX, y - 30, 'クランプを開ける'] };
       const sx = lm.stopX(L.syr);
-      if (lg.asp < 1) return { drag: [[sx + 70, y], [sx + 130, y]], label: [sx + 60, y + 34, '押し子を引く（逆血）'] };
-      if (lg.flush < 4) return { drag: [[sx + 70, y], [sx - 45, y]], label: [sx + 20, y + 34, '押してフラッシュ'] };
+      if (lg.asp < 1) return { tap: [sx + 75, y], label: [sx + 60, y + 34, 'タップで引く（逆血）'] };
+      if (lg.flush < 4) return { tap: [sx + 75, y], label: [sx + 60, y + 34, 'タップでフラッシュ'] };
       if (!lg.clamp) return { tap: [lm.CLX, y], label: [lm.CLX, y - 30, 'クランプを閉じる'] };
       return { tap: [lm.BX + 20, y], label: [lm.BX + 40, y - 30, 'シリンジを外す'] };
     };
@@ -120,12 +120,12 @@
         caution: ['内頸静脈は皮膚から1〜2 cm。深く進めない（胸膜・動脈）', '針先を見失ったら進めない'],
         ok: punctOk, after: '<b>暗赤色・拍動なし</b>の逆流。針を動かさないよう、手を患者に置いて固定。' },
       { scene: 'neck', mode: 'inner', hint: H.inner, do: '<b>外套を残して</b>、内針をシリンジごと抜く',
-        tip: 'シリンジを手前（画面の下）へドラッグ。',
+        tip: 'シリンジをタップ（手前へドラッグでもよい）。',
         caution: ['外套の先は針先より少し手前。逆血が出たら針をわずかに進めてから抜くと、外套が血管内に入る', '外套が一緒に抜けないよう、ハブを押さえる'],
         ok: a => a.type === 'innerOut' ? true : a.type === 'innerMid' ? { warn: '最後まで抜く。' } : undefined,
         after: '外套のハブから暗赤色の血がにじむ。ここからは柔らかい外套の中を通すので、針先で静脈を傷つけにくい。' },
       { scene: 'neck', mode: 'reSyr', hint: H.reSyr, do: '外套にシリンジを付け直し、引いて<b>血液がスムーズに引けるか</b>確かめる',
-        tip: '外套の緑のハブを押してシリンジを付け、押し子を手前へドラッグ。',
+        tip: '外套の緑のハブを押してシリンジを付け、もう一度タップして引く。',
         ok: a => a.type === 'syrOn' ? undefined : a.type === 'catAsp' ? (a.ok ? true : { warn: 'まだ足りない。もう少し引く。' }) : undefined,
         after: 'スムーズに暗赤色が引ける＝<b>外套の先が静脈の中</b>。引けない時は外套が血管から抜けている：陰圧をかけながら少しずつ引き戻して探す。外套を押し込まない（だめなら刺し直す）。' },
       { scene: 'neck', mode: 'syr', hint: H.syr, do: '外套を動かさないように、シリンジを外す', ok: a => a.type === 'syrOff' || undefined,
@@ -134,7 +134,7 @@
       { scene: 'neck', mode: 'wire', tool: 'cvwire', at: toolAt('cvwire', S => !!S.f.wire), hint: H.wireIn,
         do: 'ガイドワイヤーを取り、Jの先端を外套のハブに差し込む', ok: a => a.type === 'wireIn' ? true : a.type === 'wireBlocked' ? 'シリンジが付いたまま。先に外す。' : undefined },
       { scene: 'neck', mode: 'wire', hint: H.feed, do: 'ワイヤーを送る。体内に<b>15〜18 cm</b>（20 cmの目盛が皮膚の少し外）まで',
-        tip: '奥へのドラッグをくり返して送る。モニターの心電図も見る。手前へドラッグすると引き戻せる。',
+        tip: 'タップすると16〜17 cmまで送る。モニターの心電図も見る。ドラッグで自分で送り引きしてもよい。',
         caution: ['期外収縮が出たら深すぎ（右房〜右室）。引き戻す', '抵抗があれば押さない'],
         ok: a => { if (a.type !== 'wire') return; if (a.len > 19) return { warn: '<b>期外収縮</b>が出ている＝ワイヤーが右房に入った。手前へドラッグして期外収縮が消えるまで引く。' }; return (a.len >= 12 && a.len <= 19) || undefined; },
         after: 'ワイヤーの目盛（先端から 10・20・30 cm に帯）で深さが分かる。' },
@@ -142,7 +142,7 @@
         ok: a => a.type === 'long' ? (a.on || undefined) : undefined,
         after: '内頸静脈の中を足側へ走るワイヤー＝静脈。ASA 2020：<b>ダイレーターや太いカテーテルを入れる前に</b>、ワイヤーが静脈にあることをエコー・圧波形などで確かめる。' },
       { scene: 'neck', mode: 'needleOut', hint: H.needleOut, set: S => { S.f.long = false; },
-        do: '左手でワイヤーを持ち、外套を抜く', tip: 'まずハブの上のワイヤー（黄色の輪）を押して持つ。それから外套のハブを手前へドラッグ。',
+        do: '左手でワイヤーを持ち、外套を抜く', tip: 'まずハブの上のワイヤー（黄色の輪）を押して持つ。それから外套のハブをタップ。',
         caution: ['ここからカテーテルが入るまで、ワイヤーから手を離さない'],
         ok: a => a.type === 'needleOut' || undefined },
     ];
@@ -153,7 +153,7 @@
         do: 'メスで刺入部の皮膚を小さく切る', caution: ['刃先は上（皮膚側）へ。ワイヤーを切らない'],
         ok: a => a.type !== 'cut' ? undefined : a.ok ? true : { warn: a.why === 'far' ? 'ワイヤーの刺入部を横切るように。' : a.why === 'short' ? '短すぎ。2〜3 mmに。' : '長すぎ。小さく。' } },
       { scene: 'neck', mode: 'dil', tool: 'cvdil', at: toolAt('cvdil', S => !!S.f.dil), hint: S => S.f.dil ? H.dilPush(S) : gripFirst(H.tapSite)(S),
-        do: 'ダイレーターをワイヤーに通し、<b>皮膚から静脈の壁まで</b>（2〜3 cm）だけ押し進める', tip: '刺入部を押してワイヤーに通し、刺入部へ向かってドラッグ。目盛で深さを見る。',
+        do: 'ダイレーターをワイヤーに通し、<b>皮膚から静脈の壁まで</b>（2〜3 cm）だけ押し進める', tip: '刺入部を押してワイヤーに通し、もう一度ダイレーターをタップ。目盛で深さを見る。',
         caution: ['根元まで押し込まない（静脈の後壁・胸膜・縦隔の損傷）', 'ワイヤーが一緒に入っていかないか'],
         ok: a => { if (a.type === 'dilDeep') return 'ダイレーターを深く押し込みすぎた。内頸は皮膚から1〜2 cm。<b>皮膚〜静脈壁の通り道を広げるだけ</b>で、根元まで入れると後壁・胸膜・縦隔を傷つける。'; if (a.type === 'dil') return a.s >= 1.8 || undefined; } },
       { scene: 'neck', mode: 'dil', hint: H.dilPull, do: 'ダイレーターを抜き、刺入部を軽く押さえる', ok: a => a.type === 'dilOut' || undefined },
@@ -163,11 +163,11 @@
         ok: (a, S) => { if (a.type !== 'cvOn') return; if (a.id !== 'cvc4') { S.f.cv = null; S.f.wHold = true; return { warn: 'この症例は<b>クワッド</b>（4内腔）。' }; } return true; },
         after: 'カテーテルを皮膚まで滑らせると、<b>遠位（茶）のハブからワイヤーの尻</b>が出てくる。' },
       { scene: 'neck', mode: 'cv', hint: H.cvPush, do: '<b>ハブから出たワイヤーの尻を持ち</b>、カテーテルを <b>16〜18 cm</b> まで進める（先端をCAJ付近＝Zone Aへ）',
-        tip: 'まず茶色のハブから出たワイヤー（黄色の輪）を押して持つ。それから刺入部へ向かってドラッグ。皮膚の所の目盛を読む。',
+        tip: 'まず茶色のハブから出たワイヤー（黄色の輪）を押して持つ。それからカテーテルをタップ。皮膚の所の目盛を読む。',
         caution: ['尻を持たずに進めない（ワイヤーの体内遺残）', '期外収縮が出たら深すぎ'],
         ok: a => { if (a.type !== 'cv') return; if (a.s > 18.5) return { warn: '深すぎる（右房の奥・期外収縮）。16〜18 cmまで引く。' }; return (a.s >= 16 && a.s <= 18.5) || undefined; },
         after: '先端の目標は<b>上大静脈と右房の境（CAJ）付近＝Zone A</b>。この患者（165 cm）では右内頸から約17 cm（身長÷10 cm の式でも16.5 cm）。体格で変わるので、最後は胸部X線で確かめる。' },
-      { scene: 'neck', mode: 'cvWireOut', hint: H.wireOut, do: 'カテーテルを押さえたまま、<b>ワイヤーを抜く</b>', tip: 'ハブから出たワイヤーを手前へドラッグ。',
+      { scene: 'neck', mode: 'cvWireOut', hint: H.wireOut, do: 'カテーテルを押さえたまま、<b>ワイヤーを抜く</b>', tip: 'ハブから出たワイヤーをタップ。',
         ok: a => a.type === 'wireOut' ? true : a.type === 'wireOutMid' ? { warn: '最後まで抜く。' } : undefined,
         after: '抜いたワイヤーは<b>先端のJまで全部あるか</b>を必ず見て、器械台に戻す（ワイヤー遺残は起きてはならない事故）。遠位の内腔から血液がにじむ＝すぐシリンジで処理する。' },
       { scene: 'neck', mode: 'suture', tool: 'suture', at: toolAt('suture', S => S.f.cv && S.f.cv.sut), hint: H.suture,
@@ -181,9 +181,9 @@
     const st = [
       { scene: 'lumen', tool: 'saline', at: salineAt('d'), hint: legHint('d'), do: '<b>遠位（茶）</b>：生食シリンジを取ってルアーにつなぐ', tip: '器械台のシリンジを持ち、茶色のルアーを押す。',
         ok: airGuard(a => a.type === 'attach' ? (a.k === 'd' || { warn: 'まずワイヤーが通っていた遠位（茶）から。' }) : undefined) },
-      { scene: 'lumen', hint: legHint('d'), do: '押し子を<b>引いて逆血</b>を確かめる', tip: '押し子のつまみを右へドラッグ。',
+      { scene: 'lumen', hint: legHint('d'), do: '押し子を<b>引いて逆血</b>を確かめる', tip: '押し子のつまみをタップ（右へドラッグでもよい）。',
         ok: airGuard(a => a.type === 'asp' ? (a.ml >= 1 || undefined) : undefined), after: '暗赤色の血液がすっと引ける＝先端が血管内。' },
-      { scene: 'lumen', hint: legHint('d'), do: '押して<b>フラッシュ</b>（血液を戻し、生食で内腔を満たす）', tip: '押し子を左へドラッグ。',
+      { scene: 'lumen', hint: legHint('d'), do: '押して<b>フラッシュ</b>（血液を戻し、生食で内腔を満たす）', tip: '押し子をもう一度タップ（左へドラッグでもよい）。',
         ok: airGuard((a, S) => a.type === 'flush' ? (a.ml >= 4 || undefined) : undefined) },
       { scene: 'lumen', hint: legHint('d'), do: '<b>クランプを閉じてから</b>シリンジを外す', tip: 'クランプを押して閉じ、シリンジを押して外す。',
         ok: airGuard(a => a.type === 'detach' ? true : undefined), after: '外したルアーにはキャップ（閉鎖式コネクタ）をつける。' },
@@ -212,7 +212,7 @@
     id: 'cvc', title: 'CVカテーテル（右内頸）', total: 0,
     icon: '<svg viewBox="0 0 48 48" width="44" height="44"><path d="M10 8 C14 20 20 28 24 44" stroke="#2f6fd0" stroke-width="5" fill="none"/><path d="M24 30 L36 18" stroke="#f3f1ea" stroke-width="4"/><path d="M36 18 L44 10 M36 18 L46 18 M36 18 L42 26" stroke="#7a4a28" stroke-width="2.5"/></svg>',
     sub: 'トリプルかクワッドかを決め、エコーガイドで右内頸静脈に入れる。ワイヤーの管理、内腔のフラッシュ、胸部X線まで',
-    lead: 'エコー（短軸・長軸）と心電図モニターを見ながら、針・ワイヤー・ダイレーター・カテーテルを手で進めます。ワイヤーは黄色の輪を押して持ちます。持たずに進めるとミスになります。',
+    lead: 'エコー（短軸・長軸）と心電図モニターを見ながら、針・ワイヤー・ダイレーター・カテーテルを手で進めます。ワイヤーは黄色の輪を押して持ちます。持たずに進めるとミスになります。ワイヤー・ダイレーター・カテーテルは<b>タップすると自動で進みます</b>（ドラッグで自分で動かしてもよい）。',
     initState: () => ({ f: freshN({ tray: ['probe'] }), card: CASE }),
     chapters: [
       { title: 'どれを入れるか', desc: '内腔の数と、何をどの内腔に流すか。', lessons: [
@@ -287,7 +287,7 @@
               ok: a => a.type === 'cvOn' || undefined,
               after: '<b>ハブからワイヤーの尻が出ていない</b>。ワイヤーが深く入りすぎている（期外収縮も出ている＝右室まで）。このまま進めるとワイヤーが体内に入ってしまう。' },
             { scene: 'neck', mode: 'cv', hint: H.tailBack, do: '<b>皮膚の所でワイヤーを持ち</b>、尻が遠位のハブから出るまで引き戻す',
-              tip: 'まず皮膚とカテーテル先端の間のワイヤー（黄色の輪）を押して持つ。それから手前へドラッグをくり返す。',
+              tip: 'まず皮膚とカテーテル先端の間のワイヤー（黄色の輪）を押して持つ。それからもう一度タップ。',
               ok: a => a.type === 'tailOut' || undefined, after: '茶色のハブから尻が出た。持ち替えて、ここを持つ。' },
             { scene: 'neck', mode: 'cv', hint: H.cvPush, do: '尻を持って、カテーテルを16〜18 cmまで進める',
               ok: a => { if (a.type !== 'cv') return; if (a.s > 18.5) return { warn: '深すぎる（右房の奥・期外収縮）。16〜18 cmまで引く。' }; return (a.s >= 16 && a.s <= 18.5) || undefined; }, },
