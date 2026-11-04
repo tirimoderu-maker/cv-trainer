@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="右内頸静脈のCVカテーテル挿入を、エコー・外套針・ワイヤー・ダイレーター・X線まで手を動かして練習する。">
+<meta property="og:title" content="右内頸CV トレーナー">
+<meta property="og:description" content="右内頸静脈のCVカテーテル挿入を、エコー・外套針・ワイヤー・ダイレーター・X線まで手を動かして練習する。">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1720">
+<title>右内頸CV トレーナー</title>
+<link rel="stylesheet" href="style.css?v=1793760772">
+</head>
+<body>
+
+<!-- ホーム：手技の一覧 → 手技ごとのコース -->
+<div id="home" class="home">
+  <header class="home-head">
+    <div>
+      <h1 id="homeTitle">循環器救急 手技トレーナー</h1>
+      <p id="homeSub">器械台から道具を取って、術野で手を動かしながら覚える。光っているところ・点線の手の動きをなぞれば進めます。</p>
+    </div>
+    <button class="back" id="homeBack" hidden>← 手技一覧</button>
+  </header>
+  <div id="hub"></div>
+  <div id="course" hidden></div>
+  <p class="foot">研修医の練習用に作った簡略化モデルです。実際の手技は各施設の手順と上級医の指導に従ってください。数値は成人の目安で、機種・施設プロトコルにより異なります。</p>
+</div>
+
+<!-- 実技画面 -->
+<div id="play" class="play" hidden>
+  <div class="coach" id="coach">
+    <button class="c-menu" id="cMenu">← コース</button>
+    <div class="c-body">
+      <div class="c-title" id="cTitle"></div>
+      <div class="c-do" id="cDo"></div>
+      <div class="c-tip" id="cTip"></div>
+      <div class="c-fb" id="cFb" hidden></div>
+    </div>
+    <div class="c-actions" id="cActions"></div>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="opts" id="opts" hidden></div>
+</div>
+
+<div id="pointer" class="pointer" hidden><div class="ring"></div><div class="arrow">▼</div></div>
+<div id="sheetBg" class="sheet-bg" hidden></div>
+<div id="sheet" class="sheet" hidden></div>
+
+<script src="js/engine.js?v=1793760772"></script>
+<script src="js/real.js?v=1793760772"></script>
+<script src="js/fluoro.js?v=1793760772"></script>
+<script src="js/sc_field.js?v=1793760772"></script>
+<script src="js/sc_quiz.js?v=1793760772"></script>
+<script src="js/sc_neck.js?v=1793760772"></script>
+<script src="js/sc_lumen.js?v=1793760772"></script>
+<script src="js/sc_xray.js?v=1793760772"></script>
+<script src="js/procs/cvc.js?v=1793760772"></script>
+<script>PS.single = 'cvc'; PS.boot();</script>
+</body>
+</html>
